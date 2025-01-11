@@ -13,7 +13,6 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from huggingface_hub import login
 
-HUGGING_FACE_TOKEN = "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"
 
 # get the document from external source
 topic = "SpaceX_Mars_colonization_program"
