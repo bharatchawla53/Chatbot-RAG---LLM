@@ -13,6 +13,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from huggingface_hub import login
 
+HUGGING_FACE_TOKEN = "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"
 
 # get the document from external source
 topic = "SpaceX_Mars_colonization_program"
@@ -73,3 +74,36 @@ pipe = pipeline("text-generation",
 
 
 llm = HuggingFacePipeline(pipeline=pipe)
+
+# setting up the retrieval pipeline 
+qa_chain = RetrievalQA.from_chain_type(
+    llm = llm,
+    chain_type = "stuff", # map_reduce, map_rerank, stuff, refine
+    retriever = retriever,
+    chain_type_kwargs = {"prompt": PROMPT},
+    return_source_documents = True,
+    verbose = False
+)
+
+def posprocesing_anwer(query):
+    response = qa_chain.invoke(query)["result"]
+    lines = response.split("\n")
+    amswer = ""
+    for line in lines:
+      if line.startswith("Answer:"):
+        answer = line[len("Answer:"):].strip()
+        break
+    return answer
+
+def print_answer(query):
+    start = time.time()
+    answer = posprocesing_anwer(query)
+    end = time.time()
+    time_elapsed = int(round(end - start, 0))
+    print("Question: ", query)
+    print("Answer: ", answer)
+    print("")
+    print("Time elapsed: ", time_elapsed, "s")
+
+query = "What are the plans for Mars colonization?"
+print_answer(query)
